@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>goSTOPS-connect - Reception Desk</title>
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            catchyRed: {
+              DEFAULT: '#B91C1C',
+              dark: '#991B1B',
+              darker: '#7F1D1D',
+              light: '#FEF2F2',
+              border: '#FECACA'
+            },
+            brandOrange: '#FF5722',
+            brandGreen: '#10B981'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+          },
+          boxShadow: {
+            'card': '0 12px 32px -10px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.8)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #F1F4F9;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between antialiased selection:bg-orange-100 selection:text-orange-900">
+
+  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col justify-between px-4 py-4 sm:py-6">
+
+    <!-- Header -->
+    <header class="w-full mb-3 px-3 py-2.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <div class="flex flex-col">
+        <div class="flex items-center space-x-1 tracking-tight font-black text-2xl text-slate-900 leading-none">
+          <span>go</span><span class="text-[#FF5722]">STOPS</span>
+        </div>
+        <p class="text-[11px] font-semibold tracking-wide uppercase mt-0.5 text-slate-500">
+          Reception <span class="text-brandOrange font-bold">Portal</span>
+        </p>
+      </div>
+      <div class="flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-700 shadow-sm">
+        <span>Desk Mode</span>
+      </div>
+    </header>
+
+    <!-- Main Card -->
+    <main class="flex-1 flex flex-col justify-center">
+      <section class="bg-white rounded-3xl p-6 shadow-card border border-slate-100 relative">
+        
+        <div class="text-center mb-6">
+          <div class="w-14 h-14 mx-auto mb-2.5 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-brandOrange">
+            <svg class="w-7 h-7 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Redeem Guest Reward</h1>
+          <p class="text-xs text-slate-500 mt-1">
+            Enter your staff PIN and the guest's 6-character code
+          </p>
+        </div>
+
+        <form id="redeem-form" class="space-y-4">
+          <!-- Staff PIN Field (In-memory session only) -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1" for="staff-pin">
+              Staff PIN <span class="text-red-500 font-bold">*</span>
+            </label>
+            <input
+              type="password"
+              id="staff-pin"
+              required
+              maxlength="6"
+              inputmode="numeric"
+              placeholder="e.g. 1234"
+              autocomplete="off"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brandOrange focus:border-brandOrange transition-all text-center tracking-widest"
+            />
+          </div>
+
+          <!-- Reward Code Field -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1" for="reward-code">
+              6-Character Reward Code <span class="text-red-500 font-bold">*</span>
+            </label>
+            <input
+              type="text"
+              id="reward-code"
+              required
+              maxlength="6"
+              placeholder="ABCDEF"
+              autocomplete="off"
+              autocapitalize="characters"
+              class="w-full uppercase px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base font-mono font-bold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brandOrange focus:border-brandOrange transition-all text-center tracking-widest shadow-inner"
+            />
+          </div>
+
+          <!-- Result Message Banner -->
+          <div id="result-banner" class="hidden p-4 rounded-2xl text-center text-xs font-semibold leading-relaxed border transition-all">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Redeem Button -->
+          <button
+            type="submit"
+            id="redeem-btn"
+            class="w-full py-3.5 px-6 rounded-full bg-catchyRed hover:bg-catchyRed-dark text-white text-base font-bold shadow-md shadow-catchyRed/30 flex items-center justify-center gap-2 transition duration-200 active:scale-[0.98]"
+          >
+            <span>Redeem Reward</span>
+            <span class="text-lg leading-none">✓</span>
+          </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 text-center">
+          <p class="text-[11px] text-slate-400">
+            PIN is stored only in browser memory for this session.
+          </p>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Mandatory Footer Credit -->
+    <footer class="mt-4 py-3 px-2 text-center border-t border-slate-200/60">
+      <p class="text-[11px] font-medium text-slate-400 tracking-tight leading-relaxed">
+        Built by Pratik Raj for the goSTOPS Build Sprint. Not an official goSTOPS product.
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    // In-memory PIN holder (never stored in localStorage)
+    let sessionPin = '';
+
+    const pinInput = document.getElementById('staff-pin');
+    const codeInput = document.getElementById('reward-code');
+    const resultBanner = document.getElementById('result-banner');
+    const redeemBtn = document.getElementById('redeem-btn');
+    const form = document.getElementById('redeem-form');
+
+    // Auto-uppercase code input
+    codeInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    pinInput.addEventListener('input', (e) => {
+      sessionPin = e.target.value;
+    });
+
+    function showResult(type, title, message) {
+      resultBanner.className = 'p-4 rounded-2xl text-center text-xs font-semibold leading-relaxed border transition-all';
+      
+      if (type === 'valid') {
+        resultBanner.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+        resultBanner.innerHTML = `
+          <div class="flex items-center justify-center gap-1.5 text-emerald-700 text-sm font-bold mb-1">
+            <span>✓</span><span>Valid Reward</span>
+          </div>
+          <div class="text-base font-black text-emerald-950">${title}</div>
+          <div class="text-[11px] text-emerald-700 mt-1">${message}</div>
+        `;
+      } else if (type === 'already-used') {
+        resultBanner.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-900');
+        resultBanner.innerHTML = `
+          <div class="flex items-center justify-center gap-1.5 text-amber-700 text-sm font-bold mb-1">
+            <span>⚠️</span><span>Already Used</span>
+          </div>
+          <div class="text-[11px] text-amber-800">${message || 'This reward code has already been redeemed.'}</div>
+        `;
+      } else if (type === 'expired') {
+        resultBanner.classList.add('bg-red-50', 'border-red-200', 'text-red-900');
+        resultBanner.innerHTML = `
+          <div class="flex items-center justify-center gap-1.5 text-red-700 text-sm font-bold mb-1">
+            <span>⏱️</span><span>Expired</span>
+          </div>
+          <div class="text-[11px] text-red-800">${message || 'This reward code expired at midnight.'}</div>
+        `;
+      } else {
+        // Invalid or permission denied
+        resultBanner.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-900');
+        resultBanner.innerHTML = `
+          <div class="flex items-center justify-center gap-1.5 text-rose-700 text-sm font-bold mb-1">
+            <span>✕</span><span>${title || 'Invalid'}</span>
+          </div>
+          <div class="text-[11px] text-rose-800">${message || 'Please check the code and PIN and try again.'}</div>
+        `;
+      }
+
+      resultBanner.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      const pin = sessionPin || pinInput.value.trim();
+
+      if (!pin) {
+        showResult('invalid', 'PIN Required', 'Please enter your reception staff PIN.');
+        return;
+      }
+
+      if (!code || code.length !== 6) {
+        showResult('invalid', 'Invalid Code', 'Reward codes must be exactly 6 characters.');
+        return;
+      }
+
+      redeemBtn.disabled = true;
+      redeemBtn.innerHTML = '<span>Checking...</span>';
+      resultBanner.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/redeemReward', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, pin })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.valid) {
+          showResult('valid', data.rewardType, 'Reward marked as redeemed. Issue item to guest.');
+          codeInput.value = '';
+        } else if (data.error === 'already-used') {
+          showResult('already-used', 'Already Used', data.message);
+        } else if (data.error === 'expired') {
+          showResult('expired', 'Expired', data.message);
+        } else if (data.error === 'permission-denied') {
+          showResult('invalid', 'Wrong PIN', 'The staff PIN entered is incorrect.');
+        } else {
+          showResult('invalid', 'Invalid Code', data.message || 'Reward code not found.');
+        }
+      } catch (err) {
+        showResult('invalid', 'Network Error', 'Could not reach server. Please try again.');
+      } finally {
+        redeemBtn.disabled = false;
+        redeemBtn.innerHTML = '<span>Redeem Reward</span> <span class="text-lg leading-none">✓</span>';
+      }
+    });
+  </script>
+</body>
+</html>

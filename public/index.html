@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>goSTOPS go-connect</title>
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN with plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            catchyRed: {
+              DEFAULT: '#B91C1C',
+              dark: '#991B1B',
+              darker: '#7F1D1D',
+              light: '#FEF2F2',
+              border: '#FECACA'
+            },
+            brandGreen: {
+              DEFAULT: '#10B981',
+              hover: '#059669',
+              light: '#ECFDF5',
+              border: '#A7F3D0'
+            },
+            brandOrange: '#FF5722',
+            iosBg: '#E9EEF2'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+          },
+          borderRadius: {
+            '3xl': '1.75rem',
+            '4xl': '2rem'
+          },
+          boxShadow: {
+            'modal': '0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 20px -2px rgba(0, 0, 0, 0.04)',
+            'card': '0 20px 40px -15px rgba(16, 24, 40, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+            'redBtn': '0 10px 25px -5px rgba(185, 28, 28, 0.4)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    .modal-elevation {
+      box-shadow: 0 20px 40px -15px rgba(16, 24, 40, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04);
+      border-radius: 28px;
+    }
+
+    .dashed-coupon {
+      border: 2px dashed #B91C1C;
+      letter-spacing: 0.12em;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-animate {
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Screen 1 Hostel Background */
+    .bg-join-theme {
+      background-image: linear-gradient(rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.35) 30%, rgba(15, 23, 42, 0.6) 80%, rgba(15, 23, 42, 0.92) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAScr2sGx9Ga4Ek36jOEmFiDB3ld0_8CknM4pQqkEtnxPhTnKI6XXz1HQ07Uez5bG7NfPCPhkoZlN96eXA8aajtZPw3D9EqpvjrZ1-mPAj1dr-PSeYyZdNEKdVPn2RlFmPXAlFN765URKKYDraeOTxSvpapTmfXLjPz2rVfXKhqgOTczFbUXZV8jyTu6fS53611s9B86WeqjvrGX-Cg-qupZffh3t7Gx2BlMvz45mQ");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* Clean grey background for screens 2, 3, waiting, locked */
+    .bg-light-theme {
+      background-color: #E9EEF2;
+      background-image: none;
+    }
+  </style>
+</head>
+<body id="page-body" class="bg-join-theme text-slate-800 p-3 sm:p-5 antialiased selection:bg-red-100 selection:text-red-900">
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Mobile Container Shell -->
+  <main class="w-full max-w-[430px] flex flex-col justify-between min-h-[92vh] sm:min-h-[844px] py-3 px-2">
+
+    <!-- ============================================== -->
+    <!-- BRAND HEADER -->
+    <!-- ============================================== -->
+    <header id="app-header" class="w-full px-4 py-2.5 mb-2 flex items-center justify-between bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/40">
+      <div class="flex flex-col">
+        <div class="flex items-center space-x-0.5 tracking-tight font-black text-2xl text-slate-900 leading-none">
+          <span>go</span><span class="text-catchyRed-dark">STOPS</span>
+          <span class="inline-block w-2 h-2 rounded-full bg-catchyRed ml-1 mb-1"></span>
+        </div>
+        <p class="text-xs font-semibold tracking-wide uppercase mt-0.5 text-slate-600">
+          go-<span class="text-catchyRed-dark font-bold">connect</span>
+        </p>
+      </div>
+      <div id="header-right-badge" class="flex items-center space-x-1.5 bg-red-50 border border-red-200/80 px-2.5 py-1 rounded-full text-[11px] font-semibold text-catchyRed-dark shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-catchyRed inline-block animate-pulse"></span>
+        <span id="header-badge-text">Common Room</span>
+      </div>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 1: JOIN SCREEN -->
+    <!-- ============================================== -->
+    <div id="screen-join" class="w-full flex flex-col flex-1 justify-center my-auto">
+      <!-- Upper text banner -->
+      <div class="w-full my-2 px-1 flex flex-col items-center text-center select-none">
+        <h2 class="text-white font-black text-2xl sm:text-3xl tracking-tight uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] leading-none mb-1.5">
+          NEW FACE,<br /><span class="text-amber-300">NEW VIBE!!!</span>
+        </h2>
+        <div class="mt-1 bg-black/40 backdrop-blur-md px-3 py-0.5 rounded-full border border-white/20 text-[11px] font-bold text-white/90 tracking-wide">
+          Common room energy hits different 🔥
+        </div>
+      </div>
+
+      <!-- Registration Modal Card (Dark Red Theme Inside) -->
+      <section class="relative bg-white rounded-3xl sm:rounded-4xl shadow-modal border border-slate-100/80 px-6 py-6 sm:py-7 my-auto w-full transition-all duration-300">
+        <!-- Close Button -->
+        <button type="button" aria-label="Close dialog" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <line x1="18" x2="6" y1="6" y2="18"></line>
+            <line x1="6" x2="18" y1="6" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Illustration Header with Dark Red Glow -->
+        <div class="flex flex-col items-center text-center mb-4">
+          <div class="relative w-16 h-16 mb-2 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full bg-red-50 scale-105 border border-red-200"></div>
+            <span class="absolute -top-1 -right-0.5 text-amber-400 text-sm font-bold select-none animate-bounce">✦</span>
+            <span class="absolute top-3 -left-2 text-catchyRed text-xs font-bold select-none">✨</span>
+            <!-- Gift/Welcome Box SVG styled in Dark Red -->
+            <div class="relative z-10 w-10 h-10 flex items-center justify-center text-catchyRed-dark">
+              <svg class="w-10 h-10 stroke-slate-800" fill="none" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 26H52V34H12V26Z" fill="#B91C1C" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+                <path d="M16 34H48V54C48 55.1046 47.1046 56 46 56H18C16.8954 56 16 55.1046 16 54V34Z" fill="#F8FAFC" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+                <path d="M32 26V56" stroke="#991B1B" stroke-linecap="round" stroke-width="3"></path>
+                <path d="M32 26C30 19 20 16 19 22C18.5 25 24 26 32 26Z" fill="#DC2626" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+                <path d="M32 26C34 19 44 16 45 22C45.5 25 40 26 32 26Z" fill="#DC2626" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+              </svg>
+            </div>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            Tell us about you
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5 max-w-[260px] leading-relaxed">
+            Break the ice before meeting everyone in the hostel common room!
+          </p>
+        </div>
+
+        <!-- Join Form -->
+        <form id="join-form" class="space-y-4">
+          <!-- Field 1: Name Field -->
+          <div class="space-y-1">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700" for="fullName">
+              YOUR NAME <span class="text-red-500 font-bold" title="Required">*</span>
+            </label>
+            <input
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-catchyRed focus:border-catchyRed transition-all shadow-inner"
+              id="fullName"
+              name="fullName"
+              placeholder="e.g. Alex Sharma"
+              required
+              maxlength="20"
+              type="text"
+            />
+          </div>
+
+          <!-- Field 2: SINGLE QUESTION PICKER (User requirement: only show 1 at a time) -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-700">
+                QUESTION <span class="text-red-500 font-bold" title="Required">*</span>
+              </label>
+              <!-- Catchy Dark Red Shuffle Button -->
+              <button
+                type="button"
+                id="shuffleBtn"
+                class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-catchyRed-dark hover:bg-catchyRed-darker active:scale-95 rounded-full shadow-sm transition-all"
+                title="Tap to cycle through questions"
+              >
+                <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Shuffle</span>
+              </button>
+            </div>
+
+            <!-- Single Highlighted Question Card (Dark Red Theme) -->
+            <div id="single-question-card" class="p-3.5 bg-gradient-to-r from-red-50/90 to-rose-50/80 border-2 border-catchyRed rounded-2xl flex items-start gap-2.5 shadow-sm transition-all duration-200">
+              <span class="text-catchyRed font-black text-sm mt-0.5">✦</span>
+              <p id="single-question-text" class="text-xs sm:text-sm font-bold text-catchyRed-darker leading-snug transition-opacity duration-150">
+                Which travel app do you open most?
+              </p>
+            </div>
+            <p class="text-[10px] text-slate-400 italic">Tap Shuffle to cycle questions one by one.</p>
+          </div>
+
+          <!-- Field 3: Answer Field -->
+          <div class="space-y-1">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700" for="icebreakerAnswer">
+              YOUR ANSWER <span class="text-red-500 font-bold" title="Required">*</span>
+            </label>
+            <textarea
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-catchyRed focus:border-catchyRed transition-all shadow-inner leading-relaxed"
+              id="icebreakerAnswer"
+              name="icebreakerAnswer"
+              placeholder="Crispy kachori with sweet tamarind chutney..."
+              required
+              maxlength="60"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <!-- Error Alert -->
+          <div id="join-error" class="hidden p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700"></div>
+
+          <!-- Catchy Dark Red Continue Button -->
+          <div class="pt-1">
+            <button
+              id="join-submit-btn"
+              class="w-full py-3.5 px-6 rounded-2xl bg-catchyRed hover:bg-catchyRed-dark active:scale-[0.99] text-white text-base font-bold shadow-redBtn flex items-center justify-center gap-2 transition duration-200 cursor-pointer"
+              type="submit"
+            >
+              <span>Continue</span>
+              <span class="text-lg leading-none">→</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 2: GUESS (Find Atul - Dark Red Catchy Theme) -->
+    <!-- ============================================== -->
+    <div id="screen-guess" class="hidden w-full flex flex-col flex-1 justify-center my-auto">
+      <div class="w-full bg-white modal-elevation relative overflow-hidden transition-all p-6 sm:p-7 flex flex-col items-center">
+        <!-- Close '✕' Button -->
+        <button id="guess-close-btn" aria-label="Close dialog" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 active:scale-95 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all border border-slate-100" type="button">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+        <!-- Quest Badge (Dark Red Catchy) -->
+        <div class="mt-1 mb-2">
+          <span class="inline-flex items-center gap-1.5 bg-red-50 text-catchyRed-dark text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-red-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-catchyRed"></span>
+            COMMON ROOM QUEST
+          </span>
+        </div>
+
+        <!-- Backpacker Illustration with Red Warm Glow -->
+        <div class="w-44 h-36 relative flex items-center justify-center mb-2">
+          <div class="absolute inset-0 bg-gradient-to-tr from-red-100/70 via-rose-50 to-amber-50/60 rounded-3xl transform -rotate-1"></div>
+          <svg class="relative z-10 w-full h-full p-2" fill="none" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg">
+            <path d="M48 38L50 30L52 38L60 40L52 42L50 50L48 42L40 40L48 38Z" fill="#FBBF24"></path>
+            <path d="M196 52L197.5 46L199 52L205 53.5L199 55L197.5 61L196 55L190 53.5L196 52Z" fill="#DC2626"></path>
+            <rect fill="#991B1B" height="85" rx="20" width="88" x="76" y="78"></rect>
+            <rect fill="#7F1D1D" height="24" rx="8" width="74" x="83" y="68"></rect>
+            <line stroke="#991B1B" stroke-linecap="round" stroke-width="4" x1="88" x2="88" y1="80" y2="150"></line>
+            <line stroke="#991B1B" stroke-linecap="round" stroke-width="4" x1="152" x2="152" y1="80" y2="150"></line>
+            <path d="M72 172C72 135 90 122 120 122C150 122 168 135 168 172V180H72V172Z" fill="#F8FAFC" stroke="#0F172A" stroke-linecap="round" stroke-width="3"></path>
+            <path d="M96 125C96 138 93 162 90 180" stroke="#B91C1C" stroke-linecap="round" stroke-width="6"></path>
+            <path d="M144 125C144 138 147 162 150 180" stroke="#B91C1C" stroke-linecap="round" stroke-width="6"></path>
+            <rect fill="#FED7AA" height="22" rx="4" stroke="#0F172A" stroke-width="3" width="20" x="110" y="104"></rect>
+            <ellipse cx="120" cy="84" fill="#FED7AA" rx="24" ry="26" stroke="#0F172A" stroke-width="3"></ellipse>
+            <circle cx="112" cy="82" fill="#0F172A" r="2.5"></circle>
+            <circle cx="128" cy="82" fill="#0F172A" r="2.5"></circle>
+            <path d="M114 93C117 97 123 97 126 93" stroke="#0F172A" stroke-linecap="round" stroke-width="2.5"></path>
+            <ellipse cx="106" cy="88" fill="#FCA5A5" opacity="0.6" rx="3.5" ry="1.8"></ellipse>
+            <ellipse cx="134" cy="88" fill="#FCA5A5" opacity="0.6" rx="3.5" ry="1.8"></ellipse>
+            <path d="M96 74C97 66 102 60 112 59C122 58 135 60 142 68C143 73 144 79 144 82C140 80 137 77 131 77C124 77 122 81 114 79C108 77 104 80 96 82C96 78 96 76 96 74Z" fill="#1E293B"></path>
+            <path d="M98 68C98 56 108 50 120 50C132 50 142 56 142 68H98Z" fill="#B91C1C" stroke="#0F172A" stroke-width="3"></path>
+            <path d="M110 50C117 46 128 46 138 49C143 51 146 54 148 56" fill="none" stroke="#F87171" stroke-linecap="round" stroke-width="3"></path>
+            <path d="M136 67H154C156 67 158 69 157 71L155 74H136" fill="#991B1B" stroke="#0F172A" stroke-linejoin="round" stroke-width="2.5"></path>
+            <circle cx="104" cy="142" fill="#F59E0B" r="7" stroke="#0F172A" stroke-width="2"></circle>
+            <polygon fill="#DC2626" points="104,138 106,143 104,142 102,143"></polygon>
+            <polygon fill="#FFFFFF" points="104,146 106,143 104,142 102,143"></polygon>
+          </svg>
+        </div>
+
+        <!-- Heading & Target Question -->
+        <div class="text-center w-full px-2">
+          <h1 id="guess-target-heading" class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center justify-center gap-1.5">
+            Find Atul <span class="text-xl">🧭</span>
+          </h1>
+          <p id="guess-target-subtext" class="text-[15px] font-bold text-slate-700 mt-1.5 leading-snug">
+            Where is Atul travelling on his last day?
+          </p>
+          <p class="text-xs font-bold text-catchyRed italic mt-0.5 tracking-wide">
+            *here it is*
+          </p>
+        </div>
+
+        <!-- Guess Form -->
+        <form id="guess-form" class="w-full mt-4">
+          <div class="relative w-full">
+            <input
+              id="guess-input"
+              class="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white text-slate-900 placeholder:text-slate-400 font-medium text-sm px-4 py-3.5 rounded-2xl border border-slate-200 focus:border-catchyRed focus:ring-4 focus:ring-catchyRed/20 transition-all text-center tracking-normal outline-none"
+              placeholder="Type destination..."
+              required
+              type="text"
+            />
+          </div>
+
+          <!-- Clue / Tries remaining banner -->
+          <div class="mt-2.5 text-center">
+            <p class="text-[12px] font-medium text-slate-500 flex items-center justify-center gap-1">
+              <span>💡</span>
+              <span id="guess-tries-indicator"><strong class="font-bold text-catchyRed-dark">3 guesses</strong> remaining • Ask around the common lounge!</span>
+            </p>
+          </div>
+
+          <!-- Error Alert -->
+          <div id="guess-error" class="hidden mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-catchyRed-dark font-semibold text-center"></div>
+
+          <!-- Action Buttons Group (Dark Red Catchy Submit Button) -->
+          <div class="grid grid-cols-5 gap-2.5 mt-5">
+            <button id="guess-cancel-btn" class="col-span-2 py-3 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-red-50 hover:text-catchyRed active:bg-slate-100 font-semibold text-sm text-slate-600 tracking-tight transition-all active:scale-[0.98] text-center" type="button">
+              Cancel
+            </button>
+            <button id="guess-submit-btn" class="col-span-3 py-3 px-4 rounded-2xl bg-catchyRed hover:bg-catchyRed-dark active:bg-catchyRed-darker font-bold text-sm text-white shadow-md shadow-catchyRed/30 transition-all active:scale-[0.98] text-center flex items-center justify-center gap-1.5" type="submit">
+              <span>Submit Guess</span>
+              <span class="text-base leading-none">→</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 3: CLAIM REWARD (Dark Red Catchy Theme) -->
+    <!-- ============================================== -->
+    <div id="screen-reward" class="hidden w-full flex flex-col flex-1 justify-center my-auto">
+      <article class="w-full bg-white modal-elevation p-6 sm:p-7 flex flex-col items-center text-center relative transition-all">
+        <!-- Dismiss Button -->
+        <button id="reward-dismiss-btn" aria-label="Dismiss card" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+        <!-- Cheerful traveler SVG with Red Accents -->
+        <div class="w-44 h-40 mb-2 flex items-center justify-center pointer-events-none">
+          <svg fill="none" height="100%" viewBox="0 0 200 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" fill="#FEE2E2" r="90"></circle>
+            <circle cx="100" cy="100" fill="#FECACA" r="70"></circle>
+            <path d="M50 45 Q50 55 40 55 Q50 55 50 65 Q50 55 60 55 Q50 55 50 45 Z" fill="#FFB703"></path>
+            <path d="M150 40 Q150 50 140 50 Q150 50 150 60 Q150 50 160 50 Q150 50 150 40 Z" fill="#B91C1C"></path>
+            <circle cx="165" cy="85" fill="#FF5500" r="4"></circle>
+            <circle cx="35" cy="80" fill="#3B82F6" r="3.5"></circle>
+            <circle cx="145" cy="140" fill="#FFB703" r="4.5"></circle>
+            <circle cx="45" cy="135" fill="#B91C1C" r="4"></circle>
+            <path d="M65 170 C65 140, 135 140, 135 170 Z" fill="#B91C1C"></path>
+            <path d="M90 140 L100 155 L110 140 Z" fill="#FFD5B8"></path>
+            <rect fill="#FFD5B8" height="20" width="16" x="92" y="112"></rect>
+            <circle cx="100" cy="95" fill="#FFD5B8" r="28"></circle>
+            <path d="M72 90 C72 65 128 65 128 90 C128 75 118 70 100 70 C82 70 72 75 72 90 Z" fill="#2B2D42"></path>
+            <circle cx="90" cy="94" fill="#2B2D42" r="3"></circle>
+            <circle cx="110" cy="94" fill="#2B2D42" r="3"></circle>
+            <path d="M92 104 Q100 114 108 104" fill="none" stroke="#2B2D42" stroke-linecap="round" stroke-width="2.5"></path>
+            <circle cx="83" cy="102" fill="#FF8A80" opacity="0.6" r="4"></circle>
+            <circle cx="117" cy="102" fill="#FF8A80" opacity="0.6" r="4"></circle>
+            <path d="M125 145 Q145 130 142 110 Q142 98 132 102 Q126 106 122 120" fill="#FFD5B8" stroke="#E59866" stroke-width="1.5"></path>
+            <circle cx="140" cy="104" fill="#FFD5B8" r="7" stroke="#E59866" stroke-width="1.5"></circle>
+            <path d="M75 145 Q55 130 58 105 Q62 95 72 98 Q76 108 78 120" fill="#FFD5B8" stroke="#E59866" stroke-width="1.5"></path>
+            <rect fill="#FFFFFF" height="30" rx="4" stroke="#2B2D42" stroke-width="2" width="38" x="42" y="65"></rect>
+            <rect fill="#FFFFFF" height="9" rx="3" stroke="#2B2D42" stroke-width="2" width="44" x="39" y="60"></rect>
+            <rect fill="#B91C1C" height="35" width="6" x="58" y="60"></rect>
+            <rect fill="#B91C1C" height="6" width="38" x="42" y="76"></rect>
+            <path d="M53 54 C46 48 56 46 61 54 C66 46 76 48 69 54 Z" fill="#B91C1C"></path>
+          </svg>
+        </div>
+
+        <h2 id="reward-unlocked-title" class="text-xl font-bold text-gray-900 tracking-tight leading-snug">
+          Claim your reward!
+        </h2>
+        <p id="reward-unlocked-desc" class="mt-1.5 text-xs leading-relaxed text-gray-500 max-w-[260px]">
+          You cracked the hostel quest! Tap claim to reveal what's waiting for you.
+        </p>
+
+        <!-- Button Pair (Catchy Dark Red Claim Button) -->
+        <div class="mt-6 w-full flex items-center justify-center space-x-3 px-1">
+          <button id="reward-cancel-btn" class="flex-1 py-3 px-4 rounded-full border border-gray-300 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 active:scale-95 transition-all shadow-sm" type="button">
+            Cancel
+          </button>
+          <button id="open-coupon-modal-btn" class="flex-1 py-3 px-4 rounded-full text-sm font-bold text-white bg-catchyRed hover:bg-catchyRed-dark active:scale-95 transition-all shadow-md shadow-catchyRed/30" type="button">
+            Claim
+          </button>
+        </div>
+      </article>
+
+      <!-- Mini Info tag below card -->
+      <div class="mt-4 mx-auto flex items-center space-x-2 text-catchyRed-dark bg-red-50 border border-red-200 rounded-full px-3.5 py-1.5 text-xs font-medium shadow-sm">
+        <svg class="w-3.5 h-3.5 text-catchyRed flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+        </svg>
+        <span>Valid at all goSTOPS hostels India</span>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- POPUP VOUCHER MODAL (Dark Red Catchy) -->
+    <!-- ============================================== -->
+    <div id="coupon-modal" aria-modal="true" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-200" role="dialog">
+      <div class="w-full max-w-[320px] bg-white rounded-3xl p-6 text-center shadow-2xl relative modal-animate border border-slate-100">
+        <button id="close-coupon-modal-btn" aria-label="Close modal" class="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+        <!-- Floating balloons SVG -->
+        <div class="w-28 h-28 mx-auto -mt-1 flex items-center justify-center">
+          <svg fill="none" height="110" viewBox="0 0 160 160" width="110" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="80" cy="80" fill="#FEE2E2" r="72"></circle>
+            <ellipse cx="60" cy="50" fill="#B91C1C" rx="16" ry="20"></ellipse>
+            <polygon fill="#B91C1C" points="58,70 62,70 60,73"></polygon>
+            <path d="M60 73 Q65 85 75 95" fill="none" stroke="#94A3B8" stroke-dasharray="2 2" stroke-width="1.5"></path>
+            <ellipse cx="80" cy="40" fill="#991B1B" rx="18" ry="22"></ellipse>
+            <polygon fill="#991B1B" points="78,62 82,62 80,65"></polygon>
+            <path d="M80 65 L80 95" fill="none" stroke="#94A3B8" stroke-dasharray="2 2" stroke-width="1.5"></path>
+            <ellipse cx="102" cy="52" fill="#DC2626" rx="15" ry="19"></ellipse>
+            <polygon fill="#DC2626" points="100,71 104,71 102,74"></polygon>
+            <path d="M102 74 Q96 85 85 95" fill="none" stroke="#94A3B8" stroke-dasharray="2 2" stroke-width="1.5"></path>
+            <rect fill="#334155" height="34" rx="4" width="36" x="62" y="95"></rect>
+            <rect fill="#475569" height="9" rx="2" width="42" x="59" y="90"></rect>
+            <rect fill="#B91C1C" height="39" width="6" x="77" y="90"></rect>
+            <rect fill="#B91C1C" height="6" width="36" x="62" y="107"></rect>
+            <circle cx="42" cy="45" fill="#FFB703" r="2.5"></circle>
+            <circle cx="120" cy="38" fill="#FFB703" r="2.5"></circle>
+            <circle cx="125" cy="75" fill="#B91C1C" r="3"></circle>
+          </svg>
+        </div>
+
+        <h3 class="text-xl font-extrabold text-catchyRed-dark tracking-tight mt-1 leading-snug">
+          Save on your stay
+        </h3>
+        <p id="modal-reward-name" class="text-sm font-semibold text-gray-800 -mt-0.5">
+          Free filter coffee ☕
+        </p>
+
+        <!-- Dashed Code Box (Dark Red) -->
+        <div class="mt-4 flex flex-col items-center">
+          <div id="coupon-badge" class="dashed-coupon bg-red-50 text-catchyRed-darker font-mono font-bold text-lg px-4 py-2 rounded-lg cursor-pointer hover:bg-red-100 transition-colors" title="Click to copy coupon code">
+            ABCDEF
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1.5">
+            Show this code at the hostel reception desk
+          </p>
+        </div>
+
+        <div class="mt-5">
+          <button id="modal-back-btn" class="w-full py-3.5 px-6 rounded-full font-bold text-white text-sm bg-catchyRed hover:bg-catchyRed-dark active:scale-95 transition-all shadow-lg shadow-catchyRed/30 flex items-center justify-center space-x-2" type="button">
+            <span>Back to Guessing</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 4: WAITING (Empty Room) -->
+    <!-- ============================================== -->
+    <div id="screen-waiting" class="hidden w-full flex flex-col flex-1 justify-center my-auto">
+      <div class="w-full bg-white modal-elevation p-6 sm:p-7 flex flex-col items-center text-center">
+        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-catchyRed">
+          <svg class="w-10 h-10 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">No one to guess yet</h2>
+        <p class="text-xs text-slate-500 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          Try again in a few moments as more guests join the common room!
+        </p>
+        <button id="btn-waiting-retry" class="mt-6 w-full py-3.5 px-6 rounded-2xl bg-catchyRed hover:bg-catchyRed-dark active:scale-95 text-white text-sm font-bold shadow-md shadow-catchyRed/30 flex items-center justify-center gap-2 transition duration-200" type="button">
+          <span>Check again</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 5: LOCKED (3 wrong guesses) -->
+    <!-- ============================================== -->
+    <div id="screen-locked" class="hidden w-full flex flex-col flex-1 justify-center my-auto">
+      <div class="w-full bg-white modal-elevation p-6 sm:p-7 flex flex-col items-center text-center">
+        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+          <svg class="w-10 h-10 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Three tries used on this one</h2>
+        <p class="text-xs text-slate-500 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          Three tries used on this one. Try someone else in the common room!
+        </p>
+        <button id="btn-locked-next" class="mt-6 w-full py-3.5 px-6 rounded-2xl bg-catchyRed hover:bg-catchyRed-dark active:scale-95 text-white text-sm font-bold shadow-md shadow-catchyRed/30 flex items-center justify-center gap-2 transition duration-200" type="button">
+          <span>Try someone else</span>
+          <span class="text-base leading-none">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 6: DAILY CAP REACHED (1 Reward / Guest / Day) -->
+    <!-- ============================================== -->
+    <div id="screen-daily-cap" class="hidden w-full flex flex-col flex-1 justify-center my-auto">
+      <div class="w-full bg-white modal-elevation p-6 sm:p-7 flex flex-col items-center text-center">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl">
+          🛑
+        </div>
+        <span class="inline-block bg-red-100 text-catchyRed-dark text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+          Daily Limit Reached
+        </span>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">1 Reward Per Guest Per Day</h2>
+        <p class="text-xs text-slate-500 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          You have already earned today's reward! To keep things fair for everyone in the common room, each guest can earn at most <strong>1 free reward per day</strong>.
+        </p>
+
+        <!-- Display previous code if available -->
+        <div id="existing-reward-box" class="hidden mt-4 p-3 bg-red-50 border-2 dashed-coupon rounded-2xl w-full">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-catchyRed-dark">Your Code For Today</span>
+          <div id="existing-reward-code" class="font-mono text-2xl font-black text-catchyRed-dark tracking-widest my-1 select-all">------</div>
+          <p class="text-[10px] text-slate-500">Show this code at the reception desk to redeem.</p>
+        </div>
+
+        <button id="btn-cap-continue" class="mt-5 w-full py-3.5 px-6 rounded-2xl bg-catchyRed hover:bg-catchyRed-dark active:scale-95 text-white text-sm font-bold shadow-md shadow-catchyRed/30 flex items-center justify-center gap-2 transition duration-200" type="button">
+          <span>Back to Guessing</span>
+          <span class="text-base leading-none">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MANDATORY FOOTER CREDIT -->
+    <!-- ============================================== -->
+    <footer class="w-full max-w-md mx-auto py-3 px-4 text-center mt-auto">
+      <p id="footer-credit" class="text-[11px] font-medium text-white/90 drop-shadow tracking-tight leading-relaxed">
+        Built by Pratik Raj for the goSTOPS Build Sprint. Not an official goSTOPS product.
+      </p>
+    </footer>
+
+  </main>
+
+
+  </script>
+
+  <!-- Application Logic -->
+  <script>
+    const QUESTION_POOL = [
+      "Which travel app do you open most?",
+      "What's the last place you visited that you'd go back to?",
+      "What's your favourite food you've had on a trip?",
+      "What's your go-to hobby when you're not travelling?",
+      "What's one thing you'd recommend at goSTOPS to a first-timer?",
+      "What kind of music do you play on a long journey?",
+      "What's your favourite city in India so far?",
+      "What's your favourite snack to carry while travelling?",
+      "What's the one item you never travel without?",
+      "What's your favourite way to get around a new city?"
+    ];
+
+    let currentGuestId = '';
+    let currentQuestionIndex = 0;
+    let currentCandidate = null;
+    let latestRewardCode = '';
+    let latestRewardType = '';
+
+    const screens = {
+      join: document.getElementById('screen-join'),
+      guess: document.getElementById('screen-guess'),
+      reward: document.getElementById('screen-reward'),
+      waiting: document.getElementById('screen-waiting'),
+      locked: document.getElementById('screen-locked'),
+      cap: document.getElementById('screen-daily-cap')
+    };
+
+    function showScreen(name) {
+      const pageBody = document.getElementById('page-body');
+      const footerCredit = document.getElementById('footer-credit');
+      const headerRightBadge = document.getElementById('header-right-badge');
+      const headerBadgeText = document.getElementById('header-badge-text');
+
+      Object.keys(screens).forEach(key => {
+        if (key === name) {
+          screens[key].classList.remove('hidden');
+        } else {
+          screens[key].classList.add('hidden');
+        }
+      });
+
+      if (name === 'join') {
+        pageBody.className = 'bg-join-theme text-slate-800 p-3 sm:p-5 antialiased selection:bg-red-100 selection:text-red-900';
+        footerCredit.className = 'text-[11px] font-medium text-white/90 drop-shadow tracking-tight leading-relaxed';
+        headerBadgeText.textContent = 'Common Room';
+        headerRightBadge.className = 'flex items-center space-x-1.5 bg-red-50 border border-red-200/80 px-2.5 py-1 rounded-full text-[11px] font-semibold text-catchyRed-dark shadow-sm';
+      } else {
+        pageBody.className = 'bg-light-theme text-slate-800 p-3 sm:p-5 antialiased selection:bg-red-100 selection:text-red-900';
+        footerCredit.className = 'text-[11px] font-medium text-slate-400 tracking-tight leading-relaxed';
+
+        if (name === 'reward') {
+          headerBadgeText.textContent = '🎉 Reward Unlocked';
+          headerRightBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-catchyRed-dark border border-red-200 shadow-sm';
+        } else {
+          headerBadgeText.textContent = 'Common Room';
+          headerRightBadge.className = 'flex items-center space-x-1.5 bg-white/80 backdrop-blur-sm border border-slate-200/80 px-3 py-1.5 rounded-full shadow-sm text-xs font-semibold text-slate-700';
+        }
+      }
+    }
+
+    function getOrCreateGuestId() {
+      let id = localStorage.getItem('guestId');
+      if (!id) {
+        id = 'guest_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
+        localStorage.setItem('guestId', id);
+      }
+      return id;
+    }
+
+    // Single Question Switcher
+    function updateSingleQuestion() {
+      const questionTextEl = document.getElementById('single-question-text');
+      questionTextEl.style.opacity = '0';
+      setTimeout(() => {
+        questionTextEl.textContent = QUESTION_POOL[currentQuestionIndex];
+        questionTextEl.style.opacity = '1';
+      }, 120);
+    }
+
+    // Confetti Animation
+    function triggerPaperBurst() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#B91C1C', '#DC2626', '#FF5500', '#F59E0B', '#FFFFFF', '#FCA5A5'];
+      const count = 50;
+
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 3;
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2.5,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 3,
+          size: Math.random() * 7 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 12,
+          opacity: 1
+        });
+      }
+
+      let start = null;
+      function animate(time) {
+        if (!start) start = time;
+        const elapsed = time - start;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.18;
+          p.rotation += p.rotationSpeed;
+          p.opacity = Math.max(0, 1 - elapsed / 1200);
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = p.opacity;
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+          ctx.restore();
+        });
+
+        if (elapsed < 1200) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    async function loadNextProfile() {
+      try {
+        const res = await fetch('/api/getNextProfile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guestId: currentGuestId })
+        });
+
+        if (res.status === 412) {
+          localStorage.removeItem('joined');
+          showScreen('join');
+          return;
+        }
+
+        const data = await res.json();
+        if (data.empty) {
+          showScreen('waiting');
+          return;
+        }
+
+        currentCandidate = data;
+        document.getElementById('guess-target-heading').innerHTML = `Find ${escapeHtml(data.displayName)} <span class="text-xl">🧭</span>`;
+        document.getElementById('guess-target-subtext').textContent = data.questionText;
+        document.getElementById('guess-input').value = '';
+        document.getElementById('guess-input').placeholder = `Type ${escapeHtml(data.displayName)}'s answer...`;
+        document.getElementById('guess-tries-indicator').innerHTML = `<strong class="font-bold text-catchyRed-dark">3 guesses</strong> remaining • Ask around the common lounge!`;
+        document.getElementById('guess-error').classList.add('hidden');
+        showScreen('guess');
+      } catch (err) {
+        showScreen('waiting');
+      }
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      currentGuestId = getOrCreateGuestId();
+      const hasJoined = localStorage.getItem('joined') === 'true';
+
+      updateSingleQuestion();
+
+      // Shuffle cycles 1 question at a time
+      document.getElementById('shuffleBtn').addEventListener('click', () => {
+        currentQuestionIndex = (currentQuestionIndex + 1) % QUESTION_POOL.length;
+        updateSingleQuestion();
+      });
+
+      // Join Form Submit
+      const joinForm = document.getElementById('join-form');
+      joinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('fullName').value.trim();
+        const answer = document.getElementById('icebreakerAnswer').value.trim();
+        const errorEl = document.getElementById('join-error');
+        const submitBtn = document.getElementById('join-submit-btn');
+
+        errorEl.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Joining...</span>';
+
+        try {
+          const res = await fetch('/api/createProfile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              guestId: currentGuestId,
+              displayName: name,
+              questionText: QUESTION_POOL[currentQuestionIndex],
+              answer: answer
+            })
+          });
+
+          const data = await res.json();
+
+          if (res.ok || data.error === 'already-exists') {
+            localStorage.setItem('joined', 'true');
+            loadNextProfile();
+          } else {
+            errorEl.textContent = data.message || 'Failed to create profile. Check your inputs.';
+            errorEl.classList.remove('hidden');
+          }
+        } catch (err) {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Continue</span> <span class="text-lg leading-none">→</span>';
+        }
+      });
+
+      // Guess Form Submit
+      const guessForm = document.getElementById('guess-form');
+      guessForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentCandidate) return;
+
+        const answer = document.getElementById('guess-input').value.trim();
+        const errorEl = document.getElementById('guess-error');
+        const indicator = document.getElementById('guess-tries-indicator');
+        const submitBtn = document.getElementById('guess-submit-btn');
+
+        errorEl.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Checking...</span>';
+
+        try {
+          const res = await fetch('/api/submitGuess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              guestId: currentGuestId,
+              profileId: currentCandidate.profileId,
+              answer: answer
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.correct) {
+            if (data.code) {
+              latestRewardCode = data.code;
+              latestRewardType = data.rewardType;
+              localStorage.setItem('gostops_reward_code', data.code);
+              localStorage.setItem('gostops_reward_type', data.rewardType);
+              document.getElementById('reward-unlocked-title').textContent = data.rewardType;
+              document.getElementById('modal-reward-name').textContent = data.rewardType;
+              document.getElementById('coupon-badge').textContent = data.code;
+              showScreen('reward');
+              triggerPaperBurst();
+            } else {
+              // Daily cap reached: 1 reward per person per day
+              const cachedCode = localStorage.getItem('gostops_reward_code') || '';
+              if (cachedCode) {
+                document.getElementById('existing-reward-box').classList.remove('hidden');
+                document.getElementById('existing-reward-code').textContent = cachedCode;
+              }
+              showScreen('cap');
+            }
+          } else if (res.status === 412 || data.triesLeft === 0) {
+            showScreen('locked');
+          } else {
+            indicator.innerHTML = `<strong class="font-bold text-catchyRed">${data.triesLeft} ${data.triesLeft === 1 ? 'guess' : 'guesses'}</strong> remaining • Ask around the common lounge!`;
+            errorEl.textContent = `Not quite! ${data.triesLeft} ${data.triesLeft === 1 ? 'try' : 'tries'} left on this one.`;
+            errorEl.classList.remove('hidden');
+          }
+        } catch (err) {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Submit Guess</span> <span class="text-base leading-none">→</span>';
+        }
+      });
+
+      // Guess Cancel Button
+      document.getElementById('guess-cancel-btn').addEventListener('click', () => {
+        loadNextProfile();
+      });
+
+      // Screen 3: Open Coupon Modal
+      const couponModal = document.getElementById('coupon-modal');
+      document.getElementById('open-coupon-modal-btn').addEventListener('click', () => {
+        couponModal.classList.remove('hidden');
+        triggerPaperBurst();
+      });
+
+      // Close Coupon Modal
+      document.getElementById('close-coupon-modal-btn').addEventListener('click', () => {
+        couponModal.classList.add('hidden');
+      });
+
+      // Modal Back Button
+      document.getElementById('modal-back-btn').addEventListener('click', () => {
+        couponModal.classList.add('hidden');
+        loadNextProfile();
+      });
+
+      // Reward Cancel & Dismiss
+      document.getElementById('reward-cancel-btn').addEventListener('click', () => {
+        loadNextProfile();
+      });
+      document.getElementById('reward-dismiss-btn').addEventListener('click', () => {
+        loadNextProfile();
+      });
+
+      // Copy coupon code on click
+      const couponBadge = document.getElementById('coupon-badge');
+      couponBadge.addEventListener('click', () => {
+        if (!latestRewardCode) return;
+        navigator.clipboard?.writeText(latestRewardCode);
+        const originalText = couponBadge.textContent;
+        couponBadge.textContent = 'COPIED! ✓';
+        couponBadge.classList.add('text-catchyRed', 'bg-red-100');
+        setTimeout(() => {
+          couponBadge.textContent = originalText;
+          couponBadge.classList.remove('text-catchyRed', 'bg-red-100');
+        }, 1500);
+      });
+
+      // Waiting, Locked, and Cap Continue Buttons
+      document.getElementById('btn-waiting-retry').addEventListener('click', loadNextProfile);
+      document.getElementById('btn-locked-next').addEventListener('click', loadNextProfile);
+      document.getElementById('btn-cap-continue').addEventListener('click', loadNextProfile);
+
+      // Initial Flow
+      if (hasJoined) {
+        loadNextProfile();
+      } else {
+        showScreen('join');
+      }
+    });
+  </script>
+</body>
+</html>

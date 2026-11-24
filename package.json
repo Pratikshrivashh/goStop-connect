@@ -1,0 +1,28 @@
+{
+  "name": "gostops-connect",
+  "version": "1.0.0",
+  "description": "goSTOPS-connect: solo traveler icebreaker web application for goSTOPS hostel common rooms",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/answer.test.js && node tests/api.test.js && node tests/checklist.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^12.7.0"
+  },
+  "keywords": [
+    "gostops",
+    "hostel",
+    "social",
+    "icebreaker"
+  ],
+  "author": "Pratik Raj",
+  "license": "ISC"
+}
